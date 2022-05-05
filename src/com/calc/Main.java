@@ -99,10 +99,14 @@ public class Main {
     //Проверяем если оба аргумента одной системы счиления
     static String checkNumbers(String number) {
         try {
-            if (toArabic(number) >= 1)
-                return "Roman";
-            else if (Integer.parseInt(number) >= 1)
+            if (number.matches("([-+])?.*\\d.*")) {
+                //System.out.println("Arabic");
                 return "Arabic";
+            }
+            else if (toArabic(number) >= 1) {
+                //System.out.println("Roman");
+                return "Roman";
+            }
             else return null;
         } catch (Exception E) {
             System.out.println(E.getMessage());
@@ -112,10 +116,10 @@ public class Main {
     public static String calc(String input) {
         //Разбиваем ввод на части
         String[] userExpression = input.split(" ");
-        //System.out.println("User expression is: " + Arrays.toString(userExpression));
         String expressionResult = "";
         //Проверям на наличие всех аргументов
         try {
+            //Проверяем если хватает аргументов
             if (userExpression.length < 3) {
                 throw new Exception ("строка не является математической операцией");
             }
@@ -123,27 +127,29 @@ public class Main {
             String numberOne = userExpression[0];
             String sign = userExpression[1];
             String numberTwo = userExpression[2];
-            //System.out.println(numberOne + sign + numberTwo);
+            //Проверяем если есть лишние аргументы
             if (userExpression.length > 3) {
                 throw new Exception ("формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
             }
+            //Проверяем если оба аргумента арабские или оба римские
             if (!Objects.equals(checkNumbers(numberOne), checkNumbers(numberTwo)))
                 throw new Exception("используются одновременно разные системы счисления");
-            if (numberOne.matches("\\d") && numberTwo.matches("\\d")) {
-                int argument1 = (Integer.parseInt(numberOne));
-                int argument2 = (Integer.parseInt(numberTwo));
-                if ((1 <= argument1 && argument1 <= 10) && (1 <= argument2 && argument2 <= 10)) {
-                    expressionResult = String.valueOf(operation(argument1, argument2, sign));
+            if (Objects.equals(checkNumbers(numberOne), "Arabic") && Objects.equals(checkNumbers(numberTwo), "Arabic")) {
+                int arg1 = (Integer.parseInt(numberOne));
+                int arg2 = (Integer.parseInt(numberTwo));
+                if (arg1 < 1 || arg1 > 10 || arg2 < 1 || arg2 > 10) {
+                    throw new Exception("оба числа должно быть в диапазоне от 1 до 10");
                 }
+                else expressionResult = String.valueOf(operation(arg1, arg2, sign));
             }
             else if (toArabic(numberOne) > 0 && toArabic(numberTwo) > 0) {
-                int argument1 = (toArabic(numberOne));
-                int argument2 = (toArabic(numberTwo));
-                if ((1 <= argument1 && argument1 <= 10) && (1 <= argument2 && argument2 <= 10)) {
-                    if (operation(argument1, argument2, sign) <= 0) {
+                int arg1 = (toArabic(numberOne));
+                int arg2 = (toArabic(numberTwo));
+                if ((1 <= arg1 && arg1 <= 10) && (1 <= arg2 && arg2 <= 10)) {
+                    if (operation(arg1, arg2, sign) <= 0) {
                         throw new Exception("в римской системе нет нуля и отрицательных чисел");
                     }
-                    else expressionResult = toRoman(operation(argument1, argument2, sign));
+                    else expressionResult = toRoman(operation(arg1, arg2, sign));
                 }
             }
         }
